@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tmdb_app/core/constants/color_assets.dart';
 import 'package:tmdb_app/core/constants/image_assets.dart';
+import 'package:tmdb_app/presentation/controllers/trending_controller.dart';
 import 'package:tmdb_app/presentation/routes/app_route.dart';
 
 class BerandaScreen extends StatefulWidget {
@@ -12,6 +13,7 @@ class BerandaScreen extends StatefulWidget {
 }
 
 class _BerandaScreenState extends State<BerandaScreen> {
+  final trendingController = Get.find<TrendingController>();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -137,103 +139,145 @@ class _BerandaScreenState extends State<BerandaScreen> {
                   ),
                 ),
                 SizedBox(height: 16),
-                SizedBox(
-                  height: 277, // tinggi total konten (gambar + teks)
-                  child: ListView.separated(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: 5,
-                    separatorBuilder: (context, index) =>
-                        const SizedBox(width: 8), // jarak antar item
-                    padding: EdgeInsets.symmetric(horizontal: 16),
-                    itemBuilder: (context, index) {
-                      return Material(
-                        color: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                          side: BorderSide(
-                            color: Colors.grey.shade300,
-                            width: 1,
-                          ), // ⬅️ border
-                        ),
-                        elevation: 0,
-                        child: InkWell(
-                          onTap: () {
-                            Get.toNamed(Routes.detail);
-                          },
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Stack(
+                Obx(() {
+                  if (trendingController.isLoading.value) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  final limitedList = trendingController.trendingList
+                      .take(5)
+                      .toList();
+
+                  return SizedBox(
+                    height: 277,
+                    child: ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: limitedList.length,
+                      separatorBuilder: (context, index) =>
+                          const SizedBox(width: 8),
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      itemBuilder: (context, index) {
+                        final item = limitedList[index];
+                        final title = item.mediaType == 'movie'
+                            ? item.title
+                            : item.name;
+                        final rating = item.voteAverage != null
+                            ? (item.voteAverage * 10).toInt()
+                            : 0;
+
+                        return SizedBox(
+                          width: 330, // ✅ batasi lebar tiap card
+                          child: Material(
+                            color: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                              side: BorderSide(
+                                color: Colors.grey.shade300,
+                                width: 1,
+                              ),
+                            ),
+                            elevation: 0,
+                            child: InkWell(
+                              onTap: () async {
+                                if (item.mediaType == "movie") {
+                                  Get.toNamed(
+                                    Routes.movieDetail,
+                                    parameters: {"id": item.id.toString()},
+                                  );
+                                } else {
+                                  Get.toNamed(
+                                    Routes.tvDetail,
+                                    parameters: {"id": item.id.toString()},
+                                  );
+                                }
+                              },
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.circular(16),
-                                    child: Image.network(
-                                      'https://image.tmdb.org/t/p/w500/8Y43POKjjKDGI9MH89NW0NAzzp8.jpg',
-                                      width: 330,
-                                      height: 185,
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                  Positioned(
-                                    right: 16,
-                                    top: 16,
-                                    child: Material(
-                                      borderRadius: BorderRadius.circular(100),
-                                      elevation: 0,
-                                      color: Colors.amber,
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(4.5),
-                                        child: Row(
-                                          children: [
-                                            Icon(
-                                              Icons.star,
-                                              color: Colors.brown,
-                                              size: 12,
-                                            ),
-                                            Text(
-                                              "90%",
-                                              style: TextStyle(
-                                                color: Colors.brown,
-                                                fontSize: 12,
-                                              ),
-                                            ),
-                                          ],
+                                  Stack(
+                                    children: [
+                                      ClipRRect(
+                                        borderRadius: BorderRadius.circular(16),
+                                        child: Image.network(
+                                          'https://image.tmdb.org/t/p/w200${item.backdropPath}',
+                                          width: 330,
+                                          height: 185,
+                                          fit: BoxFit.contain,
                                         ),
                                       ),
+                                      Positioned(
+                                        right: 16,
+                                        top: 16,
+                                        child: Material(
+                                          borderRadius: BorderRadius.circular(
+                                            100,
+                                          ),
+                                          elevation: 0,
+                                          color: Colors.amber,
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(4.5),
+                                            child: Row(
+                                              children: [
+                                                const Icon(
+                                                  Icons.star,
+                                                  color: Colors.brown,
+                                                  size: 12,
+                                                ),
+                                                Text(
+                                                  "$rating%",
+                                                  style: const TextStyle(
+                                                    color: Colors.brown,
+                                                    fontSize: 12,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 12),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                    ),
+                                    child: Text(
+                                      title ?? 'No title',
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
+                                  const SizedBox(height: 4),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                    ),
+                                    child: Text(
+                                      item.overview,
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.grey,
+                                      ),
+                                      softWrap: true, // ✅ wrap ke bawah
+                                      overflow: TextOverflow.fade,
+                                      maxLines: 3, // ✅ batasi maksimal 3 baris
+                                    ),
+                                  ),
+                                  const SizedBox(height: 12),
                                 ],
                               ),
-                              SizedBox(height: 12),
-                              Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 16),
-                                child: Text(
-                                  "Title $index",
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                              SizedBox(height: 4),
-                              Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 16),
-                                child: Text(
-                                  "Description",
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.grey,
-                                  ),
-                                ),
-                              ),
-                              SizedBox(height: 12),
-                            ],
+                            ),
                           ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
+                        );
+                      },
+                    ),
+                  );
+                }),
                 SizedBox(height: 24),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),

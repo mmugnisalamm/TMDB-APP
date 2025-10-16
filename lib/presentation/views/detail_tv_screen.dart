@@ -1,15 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tmdb_app/core/constants/color_assets.dart';
+import 'package:tmdb_app/presentation/controllers/movie_detail_controller.dart';
+import 'package:tmdb_app/presentation/controllers/tv_detail_controller.dart';
 
-class DetailScreen extends StatefulWidget {
-  const DetailScreen({super.key});
+class TvDetailScreen extends StatefulWidget {
+  const TvDetailScreen({super.key});
 
   @override
-  State<DetailScreen> createState() => _DetailScreenState();
+  State<TvDetailScreen> createState() => _TvDetailScreenState();
 }
 
-class _DetailScreenState extends State<DetailScreen> {
+class _TvDetailScreenState extends State<TvDetailScreen> {
+  var tvDetailController = Get.find<TvDetailController>();
+  String mediaType = "";
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    final params = Get.parameters;
+    final id = int.parse(params['id'] ?? '0');
+    tvDetailController.fetchTvDetail(id);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -21,12 +35,17 @@ class _DetailScreenState extends State<DetailScreen> {
               children: [
                 Stack(
                   children: [
-                    Image.network(
-                      'https://image.tmdb.org/t/p/w500/8Y43POKjjKDGI9MH89NW0NAzzp8.jpg',
-                      width: double.infinity,
-                      height: 390,
-                      fit: BoxFit.cover,
-                    ),
+                    Obx(() {
+                      if (tvDetailController.isLoading.value) {
+                        return Center(child: CircularProgressIndicator());
+                      }
+                      return Image.network(
+                        'https://image.tmdb.org/t/p/w200${tvDetailController.tvDetail.value?.posterPath}',
+                        width: double.infinity,
+                        height: 390,
+                        fit: BoxFit.cover,
+                      );
+                    }),
 
                     Container(
                       height: 390,
@@ -246,93 +265,109 @@ class _DetailScreenState extends State<DetailScreen> {
                 Padding(
                   padding: EdgeInsets.all(24),
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
-                          Column(
-                            children: [
-                              Text(
-                                "Director, Writer",
-                                style: TextStyle(fontSize: 10),
-                              ),
-                              Text(
-                                "Todd Phillips",
-                                style: TextStyle(fontSize: 12),
-                              ),
-                            ],
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Director, Writer",
+                                  style: TextStyle(fontSize: 10),
+                                ),
+                                Text(
+                                  "Todd Phillips",
+                                  style: TextStyle(fontSize: 12),
+                                ),
+                              ],
+                            ),
                           ),
-                          Column(
-                            children: [
-                              Text(
-                                "Director, Writer",
-                                style: TextStyle(fontSize: 10),
-                              ),
-                              Text(
-                                "Todd Phillips",
-                                style: TextStyle(fontSize: 12),
-                              ),
-                            ],
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Director, Writer",
+                                  style: TextStyle(fontSize: 10),
+                                ),
+                                Text(
+                                  "Todd Phillips",
+                                  style: TextStyle(fontSize: 12),
+                                ),
+                              ],
+                            ),
                           ),
                         ],
                       ),
                       SizedBox(height: 12),
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
-                          Column(
-                            children: [
-                              Text(
-                                "Director, Writer",
-                                style: TextStyle(fontSize: 10),
-                              ),
-                              Text(
-                                "Todd Phillips",
-                                style: TextStyle(fontSize: 12),
-                              ),
-                            ],
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Director, Writer",
+                                  style: TextStyle(fontSize: 10),
+                                ),
+                                Text(
+                                  "Todd Phillips",
+                                  style: TextStyle(fontSize: 12),
+                                ),
+                              ],
+                            ),
                           ),
-                          Column(
-                            children: [
-                              Text(
-                                "Director, Writer",
-                                style: TextStyle(fontSize: 10),
-                              ),
-                              Text(
-                                "Todd Phillips",
-                                style: TextStyle(fontSize: 12),
-                              ),
-                            ],
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Director, Writer",
+                                  style: TextStyle(fontSize: 10),
+                                ),
+                                Text(
+                                  "Todd Phillips",
+                                  style: TextStyle(fontSize: 12),
+                                ),
+                              ],
+                            ),
                           ),
                         ],
                       ),
                       SizedBox(height: 12),
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
-                          Column(
-                            children: [
-                              Text(
-                                "Director, Writer",
-                                style: TextStyle(fontSize: 10),
-                              ),
-                              Text(
-                                "Todd Phillips",
-                                style: TextStyle(fontSize: 12),
-                              ),
-                            ],
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Director, Writer",
+                                  style: TextStyle(fontSize: 10),
+                                ),
+                                Text(
+                                  "Todd Phillips",
+                                  style: TextStyle(fontSize: 12),
+                                ),
+                              ],
+                            ),
                           ),
-                          Column(
-                            children: [
-                              Text(
-                                "Director, Writer",
-                                style: TextStyle(fontSize: 10),
-                              ),
-                              Text(
-                                "Todd Phillips",
-                                style: TextStyle(fontSize: 12),
-                              ),
-                            ],
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Director, Writer",
+                                  style: TextStyle(fontSize: 10),
+                                ),
+                                Text(
+                                  "Todd Phillips",
+                                  style: TextStyle(fontSize: 12),
+                                ),
+                              ],
+                            ),
                           ),
                         ],
                       ),
@@ -383,7 +418,7 @@ class _DetailScreenState extends State<DetailScreen> {
                       ),
                       SizedBox(height: 16),
                       SizedBox(
-                        height: 260, // tinggi total konten (gambar + teks)
+                        height: 194, // tinggi total konten (gambar + teks)
                         child: ListView.separated(
                           scrollDirection: Axis.horizontal,
                           itemCount: 5,
@@ -392,7 +427,7 @@ class _DetailScreenState extends State<DetailScreen> {
                           padding: EdgeInsets.symmetric(horizontal: 16),
                           itemBuilder: (context, index) {
                             return SizedBox(
-                              width: 330,
+                              width: 140,
                               child: Material(
                                 color: Colors.white,
                                 shape: RoundedRectangleBorder(
@@ -408,23 +443,26 @@ class _DetailScreenState extends State<DetailScreen> {
                                   mainAxisSize: MainAxisSize.max,
                                   children: [
                                     ClipRRect(
-                                      borderRadius: BorderRadius.circular(16),
+                                      borderRadius: BorderRadius.only(
+                                        topLeft: Radius.circular(16),
+                                        topRight: Radius.circular(16),
+                                      ),
                                       child: Image.network(
                                         'https://image.tmdb.org/t/p/w500/8Y43POKjjKDGI9MH89NW0NAzzp8.jpg',
-                                        width: 330,
-                                        height: 185,
+                                        width: 140,
+                                        height: 140,
                                         fit: BoxFit.cover,
                                       ),
                                     ),
-                                    SizedBox(height: 12),
+                                    SizedBox(height: 8),
                                     Padding(
                                       padding: EdgeInsets.symmetric(
-                                        horizontal: 16,
+                                        horizontal: 12,
                                       ),
                                       child: Text(
                                         "Title $index",
                                         style: TextStyle(
-                                          fontSize: 18,
+                                          fontSize: 12,
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
@@ -432,44 +470,17 @@ class _DetailScreenState extends State<DetailScreen> {
                                     SizedBox(height: 4),
                                     Padding(
                                       padding: const EdgeInsets.symmetric(
-                                        horizontal: 16,
+                                        horizontal: 12,
                                       ),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        mainAxisSize: MainAxisSize.max,
-                                        children: [
-                                          Text(
-                                            "Description",
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              color: Colors.grey,
-                                            ),
-                                          ),
-                                          Row(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.end,
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.end,
-                                            children: [
-                                              Icon(
-                                                Icons.star,
-                                                color: Colors.brown,
-                                                size: 12,
-                                              ),
-                                              Text(
-                                                "90%",
-                                                style: TextStyle(
-                                                  color: Colors.brown,
-                                                  fontSize: 12,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
+                                      child: Text(
+                                        "Description",
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.grey,
+                                        ),
                                       ),
                                     ),
-                                    SizedBox(height: 12),
+                                    SizedBox(height: 8),
                                   ],
                                 ),
                               ),
@@ -482,50 +493,67 @@ class _DetailScreenState extends State<DetailScreen> {
                   ),
                 ),
                 Padding(
-                  padding: EdgeInsets.all(24),
+                  padding: const EdgeInsets.all(24),
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
-                          Column(
-                            children: [
-                              Text("Status", style: TextStyle(fontSize: 10)),
-                              Text("Rilis", style: TextStyle(fontSize: 12)),
-                            ],
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: const [
+                                Text("Status", style: TextStyle(fontSize: 10)),
+                                Text("Rilis", style: TextStyle(fontSize: 12)),
+                              ],
+                            ),
                           ),
-                          Column(
-                            children: [
-                              Text(
-                                "Bahasa Ucapan",
-                                style: TextStyle(fontSize: 10),
-                              ),
-                              Text("Inggris", style: TextStyle(fontSize: 12)),
-                            ],
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: const [
+                                Text(
+                                  "Bahasa Ucapan",
+                                  style: TextStyle(fontSize: 10),
+                                ),
+                                Text("Inggris", style: TextStyle(fontSize: 12)),
+                              ],
+                            ),
                           ),
                         ],
                       ),
-                      SizedBox(height: 12),
+                      const SizedBox(height: 12),
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
-                          Column(
-                            children: [
-                              Text("Anggaran", style: TextStyle(fontSize: 10)),
-                              Text(
-                                '\$195,000,000.00',
-                                style: TextStyle(fontSize: 12),
-                              ),
-                            ],
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: const [
+                                Text(
+                                  "Anggaran",
+                                  style: TextStyle(fontSize: 10),
+                                ),
+                                Text(
+                                  "\$195,000,000.00",
+                                  style: TextStyle(fontSize: 12),
+                                ),
+                              ],
+                            ),
                           ),
-                          Column(
-                            children: [
-                              Text("Pemasukan", style: TextStyle(fontSize: 10)),
-                              Text(
-                                "\$200,714,058.00",
-                                style: TextStyle(fontSize: 12),
-                              ),
-                            ],
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: const [
+                                Text(
+                                  "Pemasukan",
+                                  style: TextStyle(fontSize: 10),
+                                ),
+                                Text(
+                                  "\$200,714,058.00",
+                                  style: TextStyle(fontSize: 12),
+                                ),
+                              ],
+                            ),
                           ),
                         ],
                       ),
@@ -551,7 +579,7 @@ class _DetailScreenState extends State<DetailScreen> {
                     ),
                     SizedBox(height: 12),
                     SizedBox(
-                      height: 260, // tinggi total konten (gambar + teks)
+                      height: 278, // tinggi total konten (gambar + teks)
                       child: ListView.separated(
                         scrollDirection: Axis.horizontal,
                         itemCount: 5,
@@ -560,85 +588,121 @@ class _DetailScreenState extends State<DetailScreen> {
                         padding: EdgeInsets.symmetric(horizontal: 16),
                         itemBuilder: (context, index) {
                           return SizedBox(
-                            width: 330,
+                            width: 278,
                             child: Material(
-                              color: Colors.white,
+                              color: const Color.fromARGB(255, 255, 253, 248),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(16),
                                 side: BorderSide(
-                                  color: Colors.grey.shade300,
+                                  color: const Color.fromARGB(
+                                    255,
+                                    255,
+                                    249,
+                                    233,
+                                  ),
                                   width: 1,
                                 ), // ⬅️ border
                               ),
                               elevation: 0,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisSize: MainAxisSize.max,
-                                children: [
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.circular(16),
-                                    child: Image.network(
-                                      'https://image.tmdb.org/t/p/w500/8Y43POKjjKDGI9MH89NW0NAzzp8.jpg',
-                                      width: 330,
-                                      height: 185,
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                  SizedBox(height: 12),
-                                  Padding(
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: 16,
-                                    ),
-                                    child: Text(
-                                      "Title $index",
-                                      style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(height: 4),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 16,
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      mainAxisSize: MainAxisSize.max,
+                              child: Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisSize: MainAxisSize.max,
+                                  children: [
+                                    Row(
                                       children: [
-                                        Text(
-                                          "Description",
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            color: Colors.grey,
+                                        Container(
+                                          width: 36,
+                                          height: 36,
+                                          decoration: BoxDecoration(
+                                            color: ColorAsset.primaryColor,
+                                            borderRadius:
+                                                BorderRadiusGeometry.circular(
+                                                  100,
+                                                ),
+                                          ),
+                                          child: Center(
+                                            child: Text(
+                                              "T",
+                                              style: TextStyle(
+                                                fontSize: 18,
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
                                           ),
                                         ),
-                                        Row(
+                                        SizedBox(width: 12),
+                                        Column(
                                           crossAxisAlignment:
-                                              CrossAxisAlignment.end,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.end,
+                                              CrossAxisAlignment.start,
                                           children: [
-                                            Icon(
-                                              Icons.star,
-                                              color: Colors.brown,
-                                              size: 12,
+                                            Text(
+                                              "austinmgray",
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.bold,
+                                              ),
                                             ),
                                             Text(
-                                              "90%",
-                                              style: TextStyle(
-                                                color: Colors.brown,
-                                                fontSize: 12,
-                                              ),
+                                              "25 November 2023",
+                                              style: TextStyle(fontSize: 10),
                                             ),
                                           ],
                                         ),
+                                        Expanded(child: SizedBox()),
+                                        Material(
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadiusGeometry.circular(
+                                                  100,
+                                                ),
+                                          ),
+                                          color: Colors.amber,
+                                          child: Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                              vertical: 4,
+                                              horizontal: 6,
+                                            ),
+                                            child: Row(
+                                              children: [
+                                                Icon(
+                                                  Icons.star,
+                                                  color: Colors.brown,
+                                                  size: 12,
+                                                ),
+                                                SizedBox(width: 5),
+                                                Text(
+                                                  "8.0",
+                                                  style: TextStyle(
+                                                    color: Colors.brown,
+                                                    fontSize: 12,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
                                       ],
                                     ),
-                                  ),
-                                  SizedBox(height: 12),
-                                ],
+                                    SizedBox(height: 12),
+                                    Text(
+                                      "one of the best installments to the Hunger Games series. it’s definitely the darkest and most political entry to the saga. act III could have been more fleshed out, but it doesn’t detract from the story the film is telling. act III was the most compelling segments in aspects of Coriolanus Snow’s villain origins. \n\nif you're a fan of political dramas or a character study or just a huge fan of the Hunger Games series, this is the film for you. excellent casting, excellent music, and deliciously evil performances.",
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: const Color.fromARGB(
+                                          255,
+                                          160,
+                                          160,
+                                          160,
+                                        ),
+                                      ),
+                                      softWrap: true,
+                                      textAlign: TextAlign.justify,
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           );
