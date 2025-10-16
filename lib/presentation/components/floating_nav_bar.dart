@@ -12,11 +12,11 @@ class FloatingNavBar extends StatelessWidget {
 
     final List<IconData> icons = [
       Icons.home_rounded,
-      Icons.bookmark_border_rounded,
+      Icons.bookmark_added_rounded,
       Icons.person_outline_rounded,
     ];
 
-    final List<String> labels = ["Beranda", "Tersimpan", "Profil"];
+    final List<String> labels = ["Beranda", "Watchlist", "Profil"];
 
     return Obx(() {
       return SafeArea(
@@ -70,7 +70,7 @@ class FloatingNavBar extends StatelessWidget {
                               color: isSelected
                                   ? Colors.white
                                   : Colors.grey.shade700,
-                              size: 16,
+                              size: 20,
                             ),
                             if (isSelected) ...[
                               const SizedBox(width: 8),
@@ -78,7 +78,7 @@ class FloatingNavBar extends StatelessWidget {
                                 labels[index],
                                 style: const TextStyle(
                                   color: Colors.white,
-                                  fontSize: 12,
+                                  fontSize: 14,
                                 ),
                               ),
                             ],

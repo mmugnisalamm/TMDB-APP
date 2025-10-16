@@ -1,23 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:tmdb_app/core/constants/color_assets.dart';
 import 'package:tmdb_app/core/constants/image_assets.dart';
 import 'package:tmdb_app/presentation/controllers/tab_controller.dart';
-import 'package:tmdb_app/presentation/controllers/trending_controller.dart';
-import 'package:tmdb_app/presentation/views/trending_screen/all_screen.dart';
-import 'package:tmdb_app/presentation/views/trending_screen/movie_screen.dart';
-import 'package:tmdb_app/presentation/views/trending_screen/tv_screen.dart';
+import 'package:tmdb_app/presentation/views/watchlist_screen/all_screen.dart';
+import 'package:tmdb_app/presentation/views/watchlist_screen/movie_screen.dart';
+import 'package:tmdb_app/presentation/views/watchlist_screen/tv_screen.dart';
 
-class TrendingScreen extends StatefulWidget {
-  const TrendingScreen({super.key});
+class WatchlistScreen extends StatefulWidget {
+  const WatchlistScreen({super.key});
 
   @override
-  State<TrendingScreen> createState() => _TrendingScreenState();
+  State<WatchlistScreen> createState() => _WatchlistScreenState();
 }
 
-class _TrendingScreenState extends State<TrendingScreen> {
+class _WatchlistScreenState extends State<WatchlistScreen> {
   final TabMenuController c = Get.find<TabMenuController>();
-
   final tabs = ['Semua', 'Film', 'Serial TV'];
   @override
   Widget build(BuildContext context) {
@@ -30,22 +27,33 @@ class _TrendingScreenState extends State<TrendingScreen> {
             surfaceTintColor: Colors.transparent,
             toolbarHeight: 120.0,
             centerTitle: true,
-            title: const Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                "Trending Hari Ini",
-                style: TextStyle(color: Colors.black),
+            title: Center(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  RotationTransition(
+                    turns: AlwaysStoppedAnimation(-15 / 360),
+                    child: Image.asset(ImageAssets.watch, width: 27),
+                  ),
+                  SizedBox(width: 3.5),
+                  Text(
+                    "Watchlist",
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                ],
               ),
             ),
             iconTheme: const IconThemeData(color: Colors.black),
-            automaticallyImplyLeading: true,
           ),
         ),
       ),
       body: SafeArea(
         child: Column(
           children: [
-            // 🔹 Custom Tab Menu di Body
             Padding(
               padding: const EdgeInsets.only(left: 24, right: 24, bottom: 12),
               child: Obx(

@@ -1,8 +1,12 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tmdb_app/core/constants/color_assets.dart';
 import 'package:tmdb_app/core/constants/image_assets.dart';
+import 'package:tmdb_app/main_screen.dart';
+import 'package:tmdb_app/presentation/components/toast_helper.dart';
+import 'package:tmdb_app/presentation/controllers/auth_controller.dart';
 import 'package:tmdb_app/presentation/routes/app_route.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -13,8 +17,13 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
+  final AuthController authController = Get.find<AuthController>();
+  final TextEditingController _emailController = TextEditingController(
+    text: "john@example.com",
+  );
+  final TextEditingController _passwordController = TextEditingController(
+    text: "123456",
+  );
   final key = GlobalKey<FormState>();
   bool _isObscure = true; // State untuk menyembunyikan/memperlihatkan password
   @override
@@ -210,8 +219,12 @@ class _LoginScreenState extends State<LoginScreen> {
                                 // Validasi input
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
+                                    ToastHelper.showError(
+                                      "Isi form yang dibutuhkan!",
+                                    );
                                     return "";
                                   }
+
                                   return null;
                                 },
                               ),
@@ -224,12 +237,34 @@ class _LoginScreenState extends State<LoginScreen> {
                       SizedBox(
                         height: 44,
                         child: ElevatedButton(
-                          onPressed: () {
+                          onPressed: () async {
                             if (key.currentState!.validate()) {
                               // authController.login(
                               //   _emailController.text,
                               //   _passwordController.text,
                               // );
+                              bool success = await authController.login(
+                                _emailController.text,
+                                _passwordController.text,
+                              );
+                              if (success) {
+                                final prefs = Get.find<SharedPreferences>();
+                                prefs.setBool("isLogin", true);
+                                prefs.setString(
+                                  "user_email",
+                                  _emailController.text,
+                                );
+                                prefs.setString(
+                                  "user_name",
+                                  authController.currentUser.value?.name ??
+                                      "NO NAME",
+                                );
+                                Get.off(() => MainScreen());
+                              } else {
+                                ToastHelper.showError(
+                                  "Login gagal! Periksa kembali email dan password Anda.",
+                                );
+                              }
                             }
                           },
                           style: ElevatedButton.styleFrom(

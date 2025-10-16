@@ -8,6 +8,7 @@ class TvDetailEntity {
   final String backdropPath;
   final double voteAverage;
   final String firstAirDate;
+  final String genre;
   final List<CastEntity> casts;
 
   TvDetailEntity({
@@ -18,6 +19,7 @@ class TvDetailEntity {
     required this.backdropPath,
     required this.voteAverage,
     required this.firstAirDate,
+    required this.genre,
     required this.casts,
   });
 }

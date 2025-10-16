@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tmdb_app/core/constants/color_assets.dart';
+import 'package:tmdb_app/core/utils/db_helper.dart';
+import 'package:tmdb_app/core/utils/formatter.dart';
+import 'package:tmdb_app/data/models/watchlist_model.dart';
+import 'package:tmdb_app/presentation/components/shimmer.dart';
+import 'package:tmdb_app/presentation/controllers/lastwatch_controller.dart';
 import 'package:tmdb_app/presentation/controllers/movie_detail_controller.dart';
 import 'package:tmdb_app/presentation/controllers/tv_detail_controller.dart';
+import 'package:tmdb_app/presentation/controllers/watchlist_controller.dart';
 
 class MovieDetailScreen extends StatefulWidget {
   const MovieDetailScreen({super.key});
@@ -14,7 +20,10 @@ class MovieDetailScreen extends StatefulWidget {
 class _MovieDetailScreenState extends State<MovieDetailScreen> {
   var movieDetailController = Get.find<MovieDetailController>();
   var tvDetailController = Get.find<TvDetailController>();
+  var watchlistController = Get.find<WatchlistController>();
+  var lastwatchController = Get.find<LastwatchController>();
   String mediaType = "";
+  bool isWathclist = false;
 
   @override
   void initState() {
@@ -22,7 +31,16 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
     super.initState();
     final params = Get.parameters;
     final id = int.parse(params['id'] ?? '0');
-    movieDetailController.fetchMovieDetail(id);
+    initFunc(id);
+  }
+
+  Future<void> initFunc(int id) async {
+    await movieDetailController.fetchMovieDetail(id);
+    await movieDetailController.fetchMovieRating(id);
+    await movieDetailController.fetchMovieReviews(id);
+    await watchlistController.checkIsInWatchlist(
+      movieDetailController.movieDetail.value?.title ?? "NO TITLE",
+    );
   }
 
   @override
@@ -38,7 +56,7 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
                   children: [
                     Obx(() {
                       if (movieDetailController.isLoading.value) {
-                        return Center(child: CircularProgressIndicator());
+                        return Center(child: ShimmerPosterDetail());
                       }
                       return Image.network(
                         'https://image.tmdb.org/t/p/w200${movieDetailController.movieDetail.value?.posterPath}',
@@ -69,22 +87,56 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            "TITLE MOVIE",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+                          Obx(() {
+                            return AnimatedOpacity(
+                              opacity:
+                                  movieDetailController
+                                          .movieDetail
+                                          .value
+                                          ?.title ==
+                                      ""
+                                  ? 0.0
+                                  : 1.0,
+                              duration: Duration(milliseconds: 10),
+                              child: Text(
+                                movieDetailController
+                                        .movieDetail
+                                        .value
+                                        ?.title ??
+                                    "NO TITLE",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            );
+                          }),
                           const SizedBox(height: 4),
-                          Text(
-                            "Drama, Kejahatan, Cinta, Seru",
-                            style: TextStyle(
-                              color: Colors.white70,
-                              fontSize: 12,
-                            ),
-                          ),
+                          Obx(() {
+                            return AnimatedOpacity(
+                              opacity:
+                                  movieDetailController
+                                          .movieDetail
+                                          .value
+                                          ?.genre ==
+                                      ""
+                                  ? 0.0
+                                  : 1.0,
+                              duration: Duration(milliseconds: 10),
+                              child: Text(
+                                movieDetailController
+                                        .movieDetail
+                                        .value
+                                        ?.genre ??
+                                    "NO GENRE",
+                                style: TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            );
+                          }),
                           const SizedBox(height: 8),
                           Row(
                             children: [
@@ -101,22 +153,44 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
                                   borderRadius: BorderRadius.circular(5),
                                   color: Colors.transparent,
                                 ),
-                                child: const Text(
-                                  "R",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 12,
-                                  ),
-                                ),
+                                child: Obx(() {
+                                  return AnimatedOpacity(
+                                    opacity:
+                                        movieDetailController
+                                                .certificationLabel
+                                                .value ==
+                                            ""
+                                        ? 0.0
+                                        : 1.0,
+                                    duration: Duration(milliseconds: 10),
+                                    child: Text(
+                                      movieDetailController
+                                          .certificationLabel
+                                          .value,
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  );
+                                }),
                               ),
                               const SizedBox(width: 8),
-                              const Text(
-                                "15/12/2023 (ID)",
-                                style: TextStyle(
-                                  color: Colors.white70,
-                                  fontSize: 12,
-                                ),
-                              ),
+                              Obx(() {
+                                return AnimatedOpacity(
+                                  opacity: movieDetailController.isLoading.value
+                                      ? 0.0
+                                      : 1.0,
+                                  duration: Duration(milliseconds: 10),
+                                  child: Text(
+                                    "${movieDetailController.movieDetail.value?.releaseDate} (${movieDetailController.movieDetail.value?.originalLanguage.toUpperCase()})",
+                                    style: TextStyle(
+                                      color: Colors.white70,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                );
+                              }),
                               const SizedBox(width: 5),
                               const Icon(
                                 Icons.circle,
@@ -124,13 +198,27 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
                                 size: 5,
                               ),
                               const SizedBox(width: 5),
-                              const Text(
-                                "2 jam 18 menit",
-                                style: TextStyle(
-                                  color: Colors.white70,
-                                  fontSize: 12,
-                                ),
-                              ),
+                              Obx(() {
+                                return AnimatedOpacity(
+                                  opacity: movieDetailController.isLoading.value
+                                      ? 0.0
+                                      : 1.0,
+                                  duration: Duration(milliseconds: 10),
+                                  child: Text(
+                                    Formatter().formatRuntime(
+                                      movieDetailController
+                                              .movieDetail
+                                              .value
+                                              ?.runtime ??
+                                          0,
+                                    ),
+                                    style: TextStyle(
+                                      color: Colors.white70,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                );
+                              }),
                             ],
                           ),
                           const SizedBox(height: 8),
@@ -143,56 +231,180 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
                                     100,
                                   ),
                                 ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(10.0),
-                                  child: Row(
-                                    children: [
-                                      Icon(
-                                        Icons.play_arrow,
-                                        size: 16,
-                                        color: Colors.white,
+                                child: InkWell(
+                                  onTap: () async {
+                                    await lastwatchController.addLastWatch(
+                                      WatchlistModel(
+                                        id:
+                                            movieDetailController
+                                                .movieDetail
+                                                .value
+                                                ?.id ??
+                                            0,
+                                        posterPath:
+                                            movieDetailController
+                                                .movieDetail
+                                                .value
+                                                ?.posterPath ??
+                                            "/",
+                                        backdropPath:
+                                            movieDetailController
+                                                .movieDetail
+                                                .value
+                                                ?.backdropPath ??
+                                            "/",
+                                        overview:
+                                            movieDetailController
+                                                .movieDetail
+                                                .value
+                                                ?.overview ??
+                                            "NO OVERVIEW",
+                                        name:
+                                            movieDetailController
+                                                .movieDetail
+                                                .value
+                                                ?.title ??
+                                            "NO TITLE",
+                                        voteAverage:
+                                            movieDetailController
+                                                .movieDetail
+                                                .value
+                                                ?.voteAverage ??
+                                            0,
                                       ),
-                                      SizedBox(width: 5),
-                                      Text(
-                                        "Lihat Trailer",
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 12,
+                                    );
+                                    // ignore: use_build_context_synchronously
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          "Membuka Trailer ${movieDetailController.movieDetail.value?.title ?? "NO TITLE"}",
                                         ),
                                       ),
-                                    ],
+                                    );
+                                  },
+                                  borderRadius: BorderRadius.circular(100),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(10.0),
+                                    child: Row(
+                                      children: [
+                                        Icon(
+                                          Icons.play_arrow,
+                                          size: 16,
+                                          color: Colors.white,
+                                        ),
+                                        SizedBox(width: 5),
+                                        Text(
+                                          "Lihat Trailer",
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 12,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
                               SizedBox(width: 8),
-                              Material(
-                                color: const Color.fromARGB(71, 158, 158, 158),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadiusGeometry.circular(
-                                    100,
+                              Obx(() {
+                                final isWatchlist =
+                                    watchlistController.isWatchlist.value;
+
+                                return Material(
+                                  color: const Color.fromARGB(
+                                    71,
+                                    158,
+                                    158,
+                                    158,
                                   ),
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(10.0),
-                                  child: Row(
-                                    children: [
-                                      Icon(
-                                        Icons.add,
-                                        size: 16,
-                                        color: Colors.white,
-                                      ),
-                                      SizedBox(width: 5),
-                                      Text(
-                                        "Watchlist",
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 12,
-                                        ),
-                                      ),
-                                    ],
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(100),
                                   ),
-                                ),
-                              ),
+                                  child: InkWell(
+                                    onTap: () async {
+                                      if (isWatchlist) {
+                                        // Jika sudah di watchlist → hapus
+                                        await watchlistController
+                                            .removeFromWatchlist(
+                                              movieDetailController
+                                                      .movieDetail
+                                                      .value
+                                                      ?.id ??
+                                                  0,
+                                            );
+                                      } else {
+                                        // Jika belum di watchlist → tambahkan
+                                        await watchlistController
+                                            .addToWatchlist(
+                                              WatchlistModel(
+                                                id:
+                                                    movieDetailController
+                                                        .movieDetail
+                                                        .value
+                                                        ?.id ??
+                                                    0,
+                                                posterPath:
+                                                    movieDetailController
+                                                        .movieDetail
+                                                        .value
+                                                        ?.posterPath ??
+                                                    "/",
+                                                backdropPath:
+                                                    movieDetailController
+                                                        .movieDetail
+                                                        .value
+                                                        ?.backdropPath ??
+                                                    "/",
+                                                overview:
+                                                    movieDetailController
+                                                        .movieDetail
+                                                        .value
+                                                        ?.overview ??
+                                                    "NO OVERVIEW",
+                                                name:
+                                                    movieDetailController
+                                                        .movieDetail
+                                                        .value
+                                                        ?.title ??
+                                                    "NO TITLE",
+                                                voteAverage:
+                                                    movieDetailController
+                                                        .movieDetail
+                                                        .value
+                                                        ?.voteAverage ??
+                                                    0,
+                                              ),
+                                            );
+                                      }
+                                    },
+                                    borderRadius: BorderRadius.circular(100),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(10.0),
+                                      child: Row(
+                                        children: [
+                                          Icon(
+                                            isWatchlist
+                                                ? Icons.check_circle
+                                                : Icons.add,
+                                            size: 16,
+                                            color: isWatchlist
+                                                ? Colors.green
+                                                : Colors.white,
+                                          ),
+                                          const SizedBox(width: 5),
+                                          Text(
+                                            "Watchlist",
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 12,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              }),
                               SizedBox(width: 8),
                               Material(
                                 shape: RoundedRectangleBorder(
@@ -203,23 +415,32 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
                                 color: Colors.amber,
                                 child: Padding(
                                   padding: const EdgeInsets.all(10.0),
-                                  child: Row(
-                                    children: [
-                                      Icon(
-                                        Icons.star,
-                                        color: Colors.brown,
-                                        size: 16,
+                                  child: Obx(() {
+                                    return AnimatedOpacity(
+                                      opacity:
+                                          movieDetailController.isLoading.value
+                                          ? 0.0
+                                          : 1.0,
+                                      duration: Duration(milliseconds: 10),
+                                      child: Row(
+                                        children: [
+                                          Icon(
+                                            Icons.star,
+                                            color: Colors.brown,
+                                            size: 16,
+                                          ),
+                                          SizedBox(width: 5),
+                                          Text(
+                                            "${movieDetailController.movieDetail.value?.voteAverage != null ? ((movieDetailController.movieDetail.value?.voteAverage ?? 0) * 10).toInt() : 0}%",
+                                            style: TextStyle(
+                                              color: Colors.brown,
+                                              fontSize: 12,
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                      SizedBox(width: 5),
-                                      Text(
-                                        "90%",
-                                        style: TextStyle(
-                                          color: Colors.brown,
-                                          fontSize: 12,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
+                                    );
+                                  }),
                                 ),
                               ),
                             ],
@@ -242,16 +463,25 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
                         ),
                       ),
                       SizedBox(height: 8),
-                      Text(
-                        "While struggling with his dual identity, Arthur Fleck not only stumbles upon true love, but also finds the music that's always been inside him.",
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.normal,
-                          color: const Color.fromARGB(255, 90, 90, 90),
-                        ),
-                        softWrap: true,
-                        textAlign: TextAlign.justify,
-                      ),
+                      Obx(() {
+                        return AnimatedOpacity(
+                          opacity: movieDetailController.isLoading.value
+                              ? 0.0
+                              : 1.0,
+                          duration: Duration(milliseconds: 10),
+                          child: Text(
+                            movieDetailController.movieDetail.value?.overview ??
+                                "NO OVERVIEW",
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.normal,
+                              color: const Color.fromARGB(255, 90, 90, 90),
+                            ),
+                            softWrap: true,
+                            textAlign: TextAlign.justify,
+                          ),
+                        );
+                      }),
                     ],
                   ),
                 ),
@@ -418,77 +648,101 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
                         ),
                       ),
                       SizedBox(height: 16),
-                      SizedBox(
-                        height: 194, // tinggi total konten (gambar + teks)
-                        child: ListView.separated(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: 5,
-                          separatorBuilder: (context, index) =>
-                              const SizedBox(width: 8), // jarak antar item
-                          padding: EdgeInsets.symmetric(horizontal: 16),
-                          itemBuilder: (context, index) {
-                            return SizedBox(
-                              width: 140,
-                              child: Material(
-                                color: Colors.white,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16),
-                                  side: BorderSide(
-                                    color: Colors.grey.shade300,
-                                    width: 1,
-                                  ), // ⬅️ border
-                                ),
-                                elevation: 0,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisSize: MainAxisSize.max,
-                                  children: [
-                                    ClipRRect(
-                                      borderRadius: BorderRadius.only(
-                                        topLeft: Radius.circular(16),
-                                        topRight: Radius.circular(16),
-                                      ),
-                                      child: Image.network(
-                                        'https://image.tmdb.org/t/p/w500/8Y43POKjjKDGI9MH89NW0NAzzp8.jpg',
-                                        width: 140,
-                                        height: 140,
-                                        fit: BoxFit.cover,
-                                      ),
+                      Obx(() {
+                        final limitedList = movieDetailController
+                            .movieDetail
+                            .value
+                            ?.casts
+                            .take(5)
+                            .toList();
+                        return AnimatedOpacity(
+                          opacity: movieDetailController.isLoading.value
+                              ? 0.0
+                              : 1.0,
+                          duration: Duration(milliseconds: 10),
+                          child: SizedBox(
+                            height: 194, // tinggi total konten (gambar + teks)
+                            child: ListView.separated(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: limitedList?.length ?? 0,
+                              separatorBuilder: (context, index) =>
+                                  const SizedBox(width: 8), // jarak antar item
+                              padding: EdgeInsets.symmetric(horizontal: 16),
+                              itemBuilder: (context, index) {
+                                return SizedBox(
+                                  width: 140,
+                                  child: Material(
+                                    color: Colors.white,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(16),
+                                      side: BorderSide(
+                                        color: Colors.grey.shade300,
+                                        width: 1,
+                                      ), // ⬅️ border
                                     ),
-                                    SizedBox(height: 8),
-                                    Padding(
-                                      padding: EdgeInsets.symmetric(
-                                        horizontal: 12,
-                                      ),
-                                      child: Text(
-                                        "Title $index",
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.bold,
+                                    elevation: 0,
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisSize: MainAxisSize.max,
+                                      children: [
+                                        ClipRRect(
+                                          borderRadius: BorderRadius.only(
+                                            topLeft: Radius.circular(16),
+                                            topRight: Radius.circular(16),
+                                          ),
+                                          child: Image.network(
+                                            'https://image.tmdb.org/t/p/w500${limitedList?[index].profilePath}',
+                                            width: 140,
+                                            height: 140,
+                                            fit: BoxFit.cover,
+                                          ),
                                         ),
-                                      ),
-                                    ),
-                                    SizedBox(height: 4),
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 12,
-                                      ),
-                                      child: Text(
-                                        "Description",
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          color: Colors.grey,
+                                        SizedBox(height: 8),
+                                        Padding(
+                                          padding: EdgeInsets.symmetric(
+                                            horizontal: 12,
+                                          ),
+                                          child: Text(
+                                            limitedList?[index].name ??
+                                                "NO NAME",
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                            softWrap: true,
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
                                         ),
-                                      ),
+                                        SizedBox(height: 4),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 12,
+                                          ),
+                                          child: Text(
+                                            limitedList?[index].character ??
+                                                limitedList?[index].job ??
+                                                "NO ROLE",
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color: Colors.grey,
+                                            ),
+                                            softWrap: true,
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                        SizedBox(height: 8),
+                                      ],
                                     ),
-                                    SizedBox(height: 8),
-                                  ],
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        );
+                      }),
                       SizedBox(height: 24),
                     ],
                   ),
@@ -503,21 +757,53 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
-                              children: const [
+                              children: [
                                 Text("Status", style: TextStyle(fontSize: 10)),
-                                Text("Rilis", style: TextStyle(fontSize: 12)),
+                                Obx(() {
+                                  return AnimatedOpacity(
+                                    opacity:
+                                        movieDetailController.isLoading.value
+                                        ? 0.0
+                                        : 1.0,
+                                    duration: Duration(milliseconds: 10),
+                                    child: Text(
+                                      movieDetailController
+                                              .movieDetail
+                                              .value
+                                              ?.status ??
+                                          "",
+                                      style: TextStyle(fontSize: 12),
+                                    ),
+                                  );
+                                }),
                               ],
                             ),
                           ),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
-                              children: const [
+                              children: [
                                 Text(
                                   "Bahasa Ucapan",
                                   style: TextStyle(fontSize: 10),
                                 ),
-                                Text("Inggris", style: TextStyle(fontSize: 12)),
+                                Obx(() {
+                                  return AnimatedOpacity(
+                                    opacity:
+                                        movieDetailController.isLoading.value
+                                        ? 0.0
+                                        : 1.0,
+                                    duration: Duration(milliseconds: 10),
+                                    child: Text(
+                                      movieDetailController
+                                              .movieDetail
+                                              .value
+                                              ?.language ??
+                                          "",
+                                      style: TextStyle(fontSize: 12),
+                                    ),
+                                  );
+                                }),
                               ],
                             ),
                           ),
@@ -529,30 +815,48 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
-                              children: const [
+                              children: [
                                 Text(
                                   "Anggaran",
                                   style: TextStyle(fontSize: 10),
                                 ),
-                                Text(
-                                  "\$195,000,000.00",
-                                  style: TextStyle(fontSize: 12),
-                                ),
+                                Obx(() {
+                                  return AnimatedOpacity(
+                                    opacity:
+                                        movieDetailController.isLoading.value
+                                        ? 0.0
+                                        : 1.0,
+                                    duration: Duration(milliseconds: 10),
+                                    child: Text(
+                                      "\$${movieDetailController.movieDetail.value?.budget}",
+                                      style: TextStyle(fontSize: 12),
+                                    ),
+                                  );
+                                }),
                               ],
                             ),
                           ),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
-                              children: const [
+                              children: [
                                 Text(
                                   "Pemasukan",
                                   style: TextStyle(fontSize: 10),
                                 ),
-                                Text(
-                                  "\$200,714,058.00",
-                                  style: TextStyle(fontSize: 12),
-                                ),
+                                Obx(() {
+                                  return AnimatedOpacity(
+                                    opacity:
+                                        movieDetailController.isLoading.value
+                                        ? 0.0
+                                        : 1.0,
+                                    duration: Duration(milliseconds: 10),
+                                    child: Text(
+                                      "\$${movieDetailController.movieDetail.value?.revenue}",
+                                      style: TextStyle(fontSize: 12),
+                                    ),
+                                  );
+                                }),
                               ],
                             ),
                           ),
@@ -579,137 +883,178 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
                       ),
                     ),
                     SizedBox(height: 12),
-                    SizedBox(
-                      height: 278, // tinggi total konten (gambar + teks)
-                      child: ListView.separated(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: 5,
-                        separatorBuilder: (context, index) =>
-                            const SizedBox(width: 8), // jarak antar item
-                        padding: EdgeInsets.symmetric(horizontal: 16),
-                        itemBuilder: (context, index) {
-                          return SizedBox(
-                            width: 278,
-                            child: Material(
-                              color: const Color.fromARGB(255, 255, 253, 248),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16),
-                                side: BorderSide(
+                    Obx(() {
+                      if (movieDetailController.isLoadingCast.value) {
+                        return Center(child: CircularProgressIndicator());
+                      }
+                      if (movieDetailController.reviews.isEmpty) {
+                        return Center(
+                          child: Text(
+                            "No Review",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        );
+                      }
+                      final item = movieDetailController.reviews;
+                      return AnimatedOpacity(
+                        opacity: movieDetailController.reviews.isEmpty
+                            ? 0.0
+                            : 1.0,
+                        duration: Duration(milliseconds: 10),
+                        child: SizedBox(
+                          height: 278, // tinggi total konten (gambar + teks)
+                          child: ListView.separated(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: item.length,
+                            separatorBuilder: (context, index) =>
+                                const SizedBox(width: 8), // jarak antar item
+                            padding: EdgeInsets.symmetric(horizontal: 16),
+                            itemBuilder: (context, index) {
+                              return SizedBox(
+                                width: 278,
+                                child: Material(
                                   color: const Color.fromARGB(
                                     255,
                                     255,
-                                    249,
-                                    233,
+                                    253,
+                                    248,
                                   ),
-                                  width: 1,
-                                ), // ⬅️ border
-                              ),
-                              elevation: 0,
-                              child: Padding(
-                                padding: const EdgeInsets.all(16),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisSize: MainAxisSize.max,
-                                  children: [
-                                    Row(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                    side: BorderSide(
+                                      color: const Color.fromARGB(
+                                        255,
+                                        255,
+                                        249,
+                                        233,
+                                      ),
+                                      width: 1,
+                                    ), // ⬅️ border
+                                  ),
+                                  elevation: 0,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(16),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisSize: MainAxisSize.max,
                                       children: [
-                                        Container(
-                                          width: 36,
-                                          height: 36,
-                                          decoration: BoxDecoration(
-                                            color: ColorAsset.primaryColor,
-                                            borderRadius:
-                                                BorderRadiusGeometry.circular(
-                                                  100,
-                                                ),
-                                          ),
-                                          child: Center(
-                                            child: Text(
-                                              "T",
-                                              style: TextStyle(
-                                                fontSize: 18,
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                        SizedBox(width: 12),
-                                        Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
+                                        Row(
                                           children: [
-                                            Text(
-                                              "austinmgray",
-                                              style: TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.bold,
+                                            Container(
+                                              width: 36,
+                                              height: 36,
+                                              decoration: BoxDecoration(
+                                                color: ColorAsset.primaryColor,
+                                                borderRadius:
+                                                    BorderRadiusGeometry.circular(
+                                                      100,
+                                                    ),
+                                              ),
+                                              child: Center(
+                                                child: Text(
+                                                  item[index].author
+                                                      .substring(1)
+                                                      .toString()
+                                                      .toUpperCase(),
+                                                  style: TextStyle(
+                                                    fontSize: 18,
+                                                    color: Colors.white,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
                                               ),
                                             ),
-                                            Text(
-                                              "25 November 2023",
-                                              style: TextStyle(fontSize: 10),
-                                            ),
-                                          ],
-                                        ),
-                                        Expanded(child: SizedBox()),
-                                        Material(
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadiusGeometry.circular(
-                                                  100,
-                                                ),
-                                          ),
-                                          color: Colors.amber,
-                                          child: Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                              vertical: 4,
-                                              horizontal: 6,
-                                            ),
-                                            child: Row(
+                                            SizedBox(width: 12),
+                                            Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
                                               children: [
-                                                Icon(
-                                                  Icons.star,
-                                                  color: Colors.brown,
-                                                  size: 12,
-                                                ),
-                                                SizedBox(width: 5),
                                                 Text(
-                                                  "8.0",
+                                                  item[index].username,
                                                   style: TextStyle(
-                                                    color: Colors.brown,
-                                                    fontSize: 12,
+                                                    fontSize: 14,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                                Text(
+                                                  item[index].createdAt
+                                                      .toString(),
+                                                  style: TextStyle(
+                                                    fontSize: 10,
                                                   ),
                                                 ),
                                               ],
                                             ),
+                                            Expanded(child: SizedBox()),
+                                            Material(
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadiusGeometry.circular(
+                                                      100,
+                                                    ),
+                                              ),
+                                              color: Colors.amber,
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      vertical: 4,
+                                                      horizontal: 6,
+                                                    ),
+                                                child: Row(
+                                                  children: [
+                                                    Icon(
+                                                      Icons.star,
+                                                      color: Colors.brown,
+                                                      size: 12,
+                                                    ),
+                                                    SizedBox(width: 5),
+                                                    Text(
+                                                      item[index].rating == null
+                                                          ? "0"
+                                                          : item[index].rating
+                                                                .toString(),
+                                                      style: TextStyle(
+                                                        color: Colors.brown,
+                                                        fontSize: 12,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(height: 12),
+                                        Text(
+                                          item[index].content,
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: const Color.fromARGB(
+                                              255,
+                                              160,
+                                              160,
+                                              160,
+                                            ),
                                           ),
+                                          softWrap: true,
+                                          maxLines: 12,
+                                          overflow: TextOverflow.ellipsis,
+                                          textAlign: TextAlign.justify,
                                         ),
                                       ],
                                     ),
-                                    SizedBox(height: 12),
-                                    Text(
-                                      "one of the best installments to the Hunger Games series. it’s definitely the darkest and most political entry to the saga. act III could have been more fleshed out, but it doesn’t detract from the story the film is telling. act III was the most compelling segments in aspects of Coriolanus Snow’s villain origins. \n\nif you're a fan of political dramas or a character study or just a huge fan of the Hunger Games series, this is the film for you. excellent casting, excellent music, and deliciously evil performances.",
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: const Color.fromARGB(
-                                          255,
-                                          160,
-                                          160,
-                                          160,
-                                        ),
-                                      ),
-                                      softWrap: true,
-                                      textAlign: TextAlign.justify,
-                                    ),
-                                  ],
+                                  ),
                                 ),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
+                              );
+                            },
+                          ),
+                        ),
+                      );
+                    }),
                     SizedBox(height: 24),
                   ],
                 ),

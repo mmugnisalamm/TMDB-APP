@@ -10,6 +10,7 @@ class TvDetailModel extends TvDetailEntity {
     required super.backdropPath,
     required super.voteAverage,
     required super.firstAirDate,
+    required super.genre,
     required List<CastModel> super.casts,
   });
 
@@ -19,6 +20,13 @@ class TvDetailModel extends TvDetailEntity {
   ) {
     final casts = castJson.map((e) => CastModel.fromJson(e)).toList();
 
+    final genresList =
+        (detailJson['genres'] as List?)
+            ?.map((g) => g['name'] as String)
+            .toList() ??
+        [];
+    final genresString = genresList.join(', ');
+
     return TvDetailModel(
       id: detailJson['id'] ?? 0,
       name: detailJson['name'] ?? '',
@@ -27,6 +35,7 @@ class TvDetailModel extends TvDetailEntity {
       backdropPath: detailJson['backdrop_path'] ?? '',
       voteAverage: (detailJson['vote_average'] ?? 0).toDouble(),
       firstAirDate: detailJson['first_air_date'] ?? '',
+      genre: genresString,
       casts: casts,
     );
   }

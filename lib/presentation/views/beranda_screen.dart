@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tmdb_app/core/constants/color_assets.dart';
 import 'package:tmdb_app/core/constants/image_assets.dart';
+import 'package:tmdb_app/core/utils/db_helper.dart';
 import 'package:tmdb_app/presentation/controllers/trending_controller.dart';
 import 'package:tmdb_app/presentation/routes/app_route.dart';
 
@@ -68,7 +69,9 @@ class _BerandaScreenState extends State<BerandaScreen> {
                       color: Colors.transparent,
                       child: InkWell(
                         borderRadius: BorderRadius.circular(100),
-                        onTap: () async {},
+                        onTap: () async {
+                          await DBHelper().deleteDB();
+                        },
                         child: Icon(
                           Icons.search_rounded,
                           size: 30,

@@ -15,7 +15,10 @@ class MainBinding extends Bindings {
     final repository = MovieTvRepositoryImpl(remoteSource);
     final useCase = GetMovieTVUseCase(repository);
 
-    Get.lazyPut<TrendingController>(() => TrendingController(useCase));
-    Get.lazyPut<NavController>(() => NavController());
+    Get.lazyPut<TrendingController>(
+      () => TrendingController(useCase),
+      fenix: true,
+    );
+    Get.lazyPut<NavController>(() => NavController(), fenix: true);
   }
 }

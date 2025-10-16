@@ -5,11 +5,13 @@ class CastModel extends CastEntity {
     required int id,
     required String name,
     required String character,
+    required String job,
     required String profilePath,
   }) : super(
          id: id,
          name: name,
          character: character,
+         job: job,
          profilePath: profilePath,
        );
 
@@ -18,6 +20,7 @@ class CastModel extends CastEntity {
       id: json['id'] ?? 0,
       name: json['name'] ?? '',
       character: json['character'] ?? '',
+      job: json['job'] ?? '',
       profilePath: json['profile_path'] ?? '',
     );
   }

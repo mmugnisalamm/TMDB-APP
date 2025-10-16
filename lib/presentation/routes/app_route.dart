@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tmdb_app/core/bindings/auth_binding.dart';
 import 'package:tmdb_app/core/bindings/detail_binding.dart';
 import 'package:tmdb_app/core/bindings/main_binding.dart';
+import 'package:tmdb_app/core/bindings/profil_binding.dart';
 import 'package:tmdb_app/core/bindings/trending_binding.dart';
+import 'package:tmdb_app/core/bindings/watchlist_binding.dart';
 import 'package:tmdb_app/main_screen.dart';
 import 'package:tmdb_app/presentation/views/detail_movie_screen.dart';
 import 'package:tmdb_app/presentation/views/detail_tv_screen.dart';
@@ -25,16 +28,14 @@ class AppRoutes {
     GetPage(
       name: Routes.main,
       page: () => const MainScreen(),
-      bindings: [MainBinding()],
-      middlewares: [
-        // AuthMiddleware(),
-      ],
+      bindings: [MainBinding(), WatchlistBinding(), ProfilBinding()],
+      middlewares: [AuthMiddleware()],
       transition: Transition.fadeIn,
     ),
     GetPage(
       name: Routes.login,
       page: () => const LoginScreen(),
-      bindings: [],
+      bindings: [AuthBinding()],
       transition: Transition.fadeIn,
     ),
     GetPage(
@@ -52,7 +53,7 @@ class AppRoutes {
     GetPage(
       name: Routes.tvDetail,
       page: () => const TvDetailScreen(),
-      bindings: [DetailBinding()],
+      bindings: [DetailBinding(), WatchlistBinding()],
       transition: Transition.rightToLeft,
     ),
   ];
@@ -62,7 +63,7 @@ class AuthMiddleware extends GetMiddleware {
   @override
   RouteSettings? redirect(String? route) {
     final prefs = Get.find<SharedPreferences>();
-    final isLoggedIn = prefs.getBool("auth") ?? false;
+    final isLoggedIn = prefs.getBool("isLogin") ?? false;
 
     if (isLoggedIn) {
       print("✅ User sudah login, tetap di Home.");

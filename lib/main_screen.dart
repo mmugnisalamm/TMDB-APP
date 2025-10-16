@@ -4,7 +4,8 @@ import 'package:tmdb_app/presentation/components/floating_nav_bar.dart';
 import 'package:tmdb_app/presentation/controllers/nav_controller.dart';
 import 'package:tmdb_app/presentation/views/beranda_screen.dart';
 import 'package:tmdb_app/presentation/views/profil_screen.dart';
-import 'package:tmdb_app/presentation/views/watchlist_screen.dart';
+
+import 'presentation/views/watchlist_screen/watchlist_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});

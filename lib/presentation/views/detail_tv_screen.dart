@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tmdb_app/core/constants/color_assets.dart';
+import 'package:tmdb_app/presentation/components/shimmer.dart';
 import 'package:tmdb_app/presentation/controllers/movie_detail_controller.dart';
 import 'package:tmdb_app/presentation/controllers/tv_detail_controller.dart';
 
@@ -37,7 +38,7 @@ class _TvDetailScreenState extends State<TvDetailScreen> {
                   children: [
                     Obx(() {
                       if (tvDetailController.isLoading.value) {
-                        return Center(child: CircularProgressIndicator());
+                        return Center(child: ShimmerPosterDetail());
                       }
                       return Image.network(
                         'https://image.tmdb.org/t/p/w200${tvDetailController.tvDetail.value?.posterPath}',

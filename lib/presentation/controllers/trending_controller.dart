@@ -4,12 +4,6 @@ import 'package:tmdb_app/domain/entities/movie_tv_entity.dart';
 import 'package:tmdb_app/domain/usecase/movie_tv_usecase.dart';
 
 class TrendingController extends GetxController {
-  var selectedIndex = 0.obs;
-
-  void changeTab(int index) {
-    selectedIndex.value = index;
-  }
-
   final GetMovieTVUseCase getTrendingUseCase;
 
   TrendingController(this.getTrendingUseCase);
