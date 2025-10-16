@@ -14,7 +14,10 @@ class TrendingBinding extends Bindings {
     final repository = MovieTvRepositoryImpl(remoteSource);
     final useCase = GetMovieTVUseCase(repository);
 
-    Get.lazyPut<TrendingController>(() => TrendingController(useCase));
+    Get.lazyPut<TrendingController>(
+      () => TrendingController(useCase),
+      fenix: true,
+    );
     Get.lazyPut<TabMenuController>(() => TabMenuController(), fenix: true);
   }
 }

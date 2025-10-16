@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tmdb_app/presentation/components/floating_nav_bar.dart';
 import 'package:tmdb_app/presentation/controllers/nav_controller.dart';
+import 'package:tmdb_app/presentation/controllers/trending_controller.dart';
 import 'package:tmdb_app/presentation/views/beranda_screen.dart';
 import 'package:tmdb_app/presentation/views/profil_screen.dart';
 
@@ -15,7 +16,7 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  final NavController controller = Get.find<NavController>();
+  final NavController controller = Get.put(NavController());
 
   final List<Widget> _pages = const [
     BerandaScreen(),

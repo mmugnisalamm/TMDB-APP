@@ -28,7 +28,13 @@ class AppRoutes {
     GetPage(
       name: Routes.main,
       page: () => const MainScreen(),
-      bindings: [MainBinding(), WatchlistBinding(), ProfilBinding()],
+      bindings: [
+        MainBinding(),
+        WatchlistBinding(),
+        ProfilBinding(),
+        TrendingBinding(),
+        ProfilBinding(),
+      ],
       middlewares: [AuthMiddleware()],
       transition: Transition.fadeIn,
     ),

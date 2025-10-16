@@ -2,7 +2,7 @@ import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tmdb_app/core/utils/db_helper.dart';
 import 'package:tmdb_app/data/models/user_model.dart';
-import 'package:tmdb_app/presentation/views/login_screen.dart';
+import 'package:tmdb_app/presentation/routes/app_route.dart';
 
 class AuthController extends GetxController {
   final DBHelper dbHelper = DBHelper();
@@ -53,6 +53,6 @@ class AuthController extends GetxController {
     final prefs = Get.find<SharedPreferences>();
     prefs.clear();
 
-    Get.off(LoginScreen());
+    Get.offNamed(Routes.login);
   }
 }

@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tmdb_app/core/constants/color_assets.dart';
 import 'package:tmdb_app/presentation/controllers/auth_controller.dart';
+import 'package:tmdb_app/presentation/controllers/nav_controller.dart';
 import 'package:tmdb_app/presentation/routes/app_route.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -15,7 +16,7 @@ Future<void> main() async {
   Get.put(
     prefs,
   ); // Simpan instance SharedPreferences di GetX// ✅ Tambahkan ini agar plugin siap
-
+  Get.put(NavController(), permanent: true);
   final auth = Get.put(AuthController(), permanent: true);
   await auth.initDummyUser();
 

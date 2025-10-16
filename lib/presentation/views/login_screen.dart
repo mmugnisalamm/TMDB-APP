@@ -259,7 +259,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   authController.currentUser.value?.name ??
                                       "NO NAME",
                                 );
-                                Get.off(() => MainScreen());
+                                Get.offNamed(Routes.main);
                               } else {
                                 ToastHelper.showError(
                                   "Login gagal! Periksa kembali email dan password Anda.",
